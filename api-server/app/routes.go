@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/chauhanr/golang-web/10-api-server/handlers"
+	"github.com/chauhanr/singlenetes/api-server/handlers"
 	"github.com/gorilla/mux"
 	"net/http"
 )

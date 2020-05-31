@@ -1,0 +1,8 @@
+api-server: 
+  port: 9991 
+  etcd:
+    endpoints: 
+      - localhost:2379
+    context-timeout: 5   # in seconds 
+    
+    
