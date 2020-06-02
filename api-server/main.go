@@ -3,10 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/chauhanr/singlenetes/api-server/app"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"time"
+
+	"github.com/chauhanr/singlenetes/api-server/app"
+	"github.com/gorilla/mux"
+	"go.etcd.io/etcd/clientv3"
 )
 
 var config string
@@ -25,17 +28,36 @@ func main() {
 	}
 	cfg := app.ServerConfig{}
 	err := cfg.LoadAndValidateApiConfig(config)
-	port := cfg.ApiServerConfig.Port
-
 	if err != nil {
 		fmt.Errorf("Error loading/validating server config: %s\n", err)
 		return
 	}
+	etcdConfig := cfg.ApiServerConfig.EtcdConfig
 
-	s := app.NewServer(r)
+	cli, err := etcdCli(etcdConfig)
+	if err != nil {
+		fmt.Printf("Error connecting to ectd instance: %s\n", err)
+		return
+	}
+	client := store.EtcdClient{cli}
+	defer cli.Close()
+
+	s := app.NewServer(r, cli)
 	s.ApiRoutes()
 
+	port := cfg.ApiServerConfig.Port
 	log.Printf("Starting api-server on port %d\n", port)
 	portAddr := fmt.Sprintf(":%d", port)
 	http.ListenAndServe(portAddr, s.Router)
+}
+
+func etcdCli(cfg app.EtcdConfig) (*clientv3.Client, error) {
+	cli, err := clientv3.New(clientv3.Config{
+		Endpoints:   cfg.Endpoints,
+		DialTimeout: time.Duration(cfg.ContextTimeout) * time.Second,
+	})
+	if err != nil {
+		return cli, err
+	}
+	return cli, nil
 }

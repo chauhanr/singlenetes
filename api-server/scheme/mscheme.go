@@ -1,10 +1,16 @@
 package scheme
 
+import "time"
+
 /**
 This is the master scheme that will hold master copy of the configurations
 This is what will be persisted to the etcd and will be transformed based on
 which version is being used.
 */
+
+type Validator interface {
+	Validate() error
+}
 
 type Pod struct {
 	ApiVersion string    `yaml:"apiVerion"`
@@ -12,6 +18,11 @@ type Pod struct {
 	Metadata   string    `yaml:"metadata"`
 	Spec       Spec      `yaml:"spec"`
 	PodStatus  PodStatus `yaml:"status,omitempty"`
+}
+
+func (p *Pod) Validate() error {
+	/*validate the pod master data*/
+	return nil
 }
 
 type Spec struct {
@@ -55,4 +66,11 @@ type ContainerPort struct {
 	Protocol      string `yaml:"protocol"`
 	Name          string `yaml:"name"`
 	HostIP        string `yaml:"hostIP"`
+}
+
+func (p *Pod) Transform(pod PodV1) {
+	p.ApiVersion = pod.ApiVersion
+	p.Kind = pod.Kind
+	p.Metadata = pod.Metadata
+	p.Spec = Spec{}
 }

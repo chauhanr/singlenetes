@@ -1,11 +1,18 @@
 package scheme
 
+import "time"
+
 type PodV1 struct {
 	ApiVersion string      `yaml:"apiVerion"`
 	Kind       string      `yaml:"Kind"`
 	Metadata   string      `yaml:"metadata"`
 	Spec       PodSpecV1   `yaml:"spec"`
 	Status     PodStatusV1 `yaml:"status"`
+}
+
+func (p *PodV1) Validate() error {
+
+	return nil
 }
 
 type PodSpecV1 struct {
