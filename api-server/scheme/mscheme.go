@@ -15,7 +15,7 @@ type Validator interface {
 type Pod struct {
 	ApiVersion string    `yaml:"apiVerion"`
 	Kind       string    `yaml:"Kind"`
-	Metadata   string    `yaml:"metadata"`
+	Metadata   Meta      `yaml:"metadata"`
 	Spec       Spec      `yaml:"spec"`
 	PodStatus  PodStatus `yaml:"status,omitempty"`
 }
@@ -68,9 +68,15 @@ type ContainerPort struct {
 	HostIP        string `yaml:"hostIP"`
 }
 
+type Meta struct {
+	Name         string    `yaml:"name"`
+	Namespace    string    `yaml:"namespace"`
+	CreationTime time.Time `yaml:"creationTime"`
+	Uid          string    `yaml:"uid"`
+}
+
 func (p *Pod) Transform(pod PodV1) {
 	p.ApiVersion = pod.ApiVersion
 	p.Kind = pod.Kind
-	p.Metadata = pod.Metadata
 	p.Spec = Spec{}
 }

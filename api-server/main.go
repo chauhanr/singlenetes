@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/chauhanr/singlenetes/api-server/app"
+	"github.com/chauhanr/singlenetes/api-server/store"
 	"github.com/gorilla/mux"
 	"go.etcd.io/etcd/clientv3"
 )
@@ -39,10 +40,10 @@ func main() {
 		fmt.Printf("Error connecting to ectd instance: %s\n", err)
 		return
 	}
-	client := store.EtcdClient{cli}
+	client := store.EtcdCtl{cli}
 	defer cli.Close()
 
-	s := app.NewServer(r, cli)
+	s := app.NewServer(r, &client)
 	s.ApiRoutes()
 
 	port := cfg.ApiServerConfig.Port

@@ -27,13 +27,16 @@ func (s *Server) podHandler() http.HandlerFunc {
 		data := scheme.ErrorMessage{}
 		if r.Method == http.MethodPost {
 			pod := scheme.PodV1{}
-			err := decodeYaml(r, &pod)
+			err := DecodeYaml(r, &pod)
 			if err != nil {
 				msg := fmt.Sprintf("Error parsing PodV1 configuration %s\n", err)
 				data.ParsingError(msg)
 				respond(w, r, http.StatusInternalServerError, &data)
 			}
 			// add the pod definition to etcd cluster.
+			podUid := guid()
+			pod.Metadata.Uid = podUid
+			namespace := "default"
 
 		} else {
 			data.MethodNotSupport(http.StatusMethodNotAllowed, r.Method)

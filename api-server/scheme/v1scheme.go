@@ -5,7 +5,7 @@ import "time"
 type PodV1 struct {
 	ApiVersion string      `yaml:"apiVerion"`
 	Kind       string      `yaml:"Kind"`
-	Metadata   string      `yaml:"metadata"`
+	Metadata   MetaV1      `yaml:"metadata"`
 	Spec       PodSpecV1   `yaml:"spec"`
 	Status     PodStatusV1 `yaml:"status"`
 }
@@ -56,4 +56,11 @@ type ContainerPortV1 struct {
 	Protocol      string `yaml:"protocol"`
 	Name          string `yaml:"name"`
 	HostIP        string `yaml:"hostIP"`
+}
+
+type MetaV1 struct {
+	Name         string    `yaml:"name"`
+	Namespace    string    `yaml:"namespace"`
+	CreationTime time.Time `yaml:"creationTime"`
+	Uid          string    `yaml:"uid"`
 }

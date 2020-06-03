@@ -6,8 +6,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/chauhanr/singlenetes/api-server/scheme"
+	"github.com/google/uuid"
 	"gopkg.in/yaml.v2"
 )
 
@@ -40,7 +42,7 @@ func respond(w http.ResponseWriter, r *http.Request, status int, data interface{
    the validate function will check for the validity of the model and return error in case
    failure
 */
-func decodeJson(r *http.Request, v interface{}) error {
+func DecodeJson(r *http.Request, v interface{}) error {
 	if err := json.NewDecoder(r.Body).Decode(v); err != nil {
 		return err
 	}
@@ -54,7 +56,7 @@ func decodeJson(r *http.Request, v interface{}) error {
 	return nil
 }
 
-func decodeYaml(r *http.Request, v interface{}) error {
+func DecodeYaml(r *http.Request, v interface{}) error {
 	if err := yaml.NewDecoder(r.Body).Decode(v); err != nil {
 		return err
 	}
@@ -66,4 +68,10 @@ func decodeYaml(r *http.Request, v interface{}) error {
 		}
 	}
 	return nil
+}
+
+func guid() string {
+	uid := uuid.New()
+	u := strings.Replace(uid.String(), "-", "", -1)
+	return u
 }
