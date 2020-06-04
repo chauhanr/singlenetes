@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/chauhanr/singlenetes/api-server/scheme"
+	"github.com/gorilla/mux"
 )
 
 func (s *Server) StatusV1() http.HandlerFunc {
@@ -20,9 +21,10 @@ func (s *Server) StatusV1() http.HandlerFunc {
 	}
 }
 
-func (s *Server) podHandler() http.HandlerFunc {
+func (s *Server) podCreateHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
+		vars := mux.Vars(r)
 		log.Printf("URL: %s, pod configurations submitted to be saved.\n", path)
 		data := scheme.ErrorMessage{}
 		if r.Method == http.MethodPost {
@@ -36,8 +38,14 @@ func (s *Server) podHandler() http.HandlerFunc {
 			// add the pod definition to etcd cluster.
 			podUid := guid()
 			pod.Metadata.Uid = podUid
-			namespace := "default"
-
+			err = s.cli.Put(pod)
+			pod.Metadata.Namespace = vars[NAMESPACE_PNAME]
+			if err != nil {
+				msg := fmt.Sprintf("Error saving PodV1 configuration %s\n", err)
+				data.InternalServerError(http.StatusInternalServerError, msg)
+				respond(w, r, http.StatusInternalServerError, &data)
+			}
+			respond(w, r, http.StatusOK, nil)
 		} else {
 			data.MethodNotSupport(http.StatusMethodNotAllowed, r.Method)
 			respond(w, r, http.StatusMethodNotAllowed, &data)

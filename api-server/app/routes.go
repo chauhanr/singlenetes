@@ -1,8 +1,13 @@
 package app
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
+)
+
+const (
+	NAMESPACE_PNAME = "namespace"
 )
 
 func (s *Server) ApiRoutes() {
@@ -15,6 +20,7 @@ func (s *Server) ApiRoutes() {
 func (s *Server) apiV1Routes(subRouter *mux.Router) {
 	var api = subRouter.PathPrefix("/v1").Subrouter()
 	api.NotFoundHandler = http.HandlerFunc(s.NotFoundHandler())
+	api.HandleFunc("/{"+NAMESPACE_PNAME+"}/pod", s.podCreateHandler())
 	api.HandleFunc("/status", s.StatusV1())
 }
 
