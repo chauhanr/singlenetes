@@ -13,7 +13,7 @@ type Validator interface {
 }
 
 type Pod struct {
-	ApiVersion string    `yaml:"apiVerion"`
+	ApiVersion string    `yaml:"apiVersion"`
 	Kind       string    `yaml:"Kind"`
 	Metadata   Meta      `yaml:"metadata"`
 	Spec       Spec      `yaml:"spec"`
@@ -50,8 +50,8 @@ type Container struct {
 	Image   string        `yaml:"image"`
 	Name    string        `yaml:"name"`
 	Ports   ContainerPort `yaml:"ports"`
-	Args    []string      `yaml:"args"`
-	Command string        `yaml:"command"`
+	Args    []string      `yaml:"args,omitempty"`
+	Command string        `yaml:"command,omitempty"`
 }
 
 type ContainerState struct {
@@ -63,9 +63,9 @@ type ContainerState struct {
 type ContainerPort struct {
 	ContainerPort int    `yaml:"containerPort"`
 	HostPort      int    `yaml:"hostPort"`
-	Protocol      string `yaml:"protocol"`
-	Name          string `yaml:"name"`
-	HostIP        string `yaml:"hostIP"`
+	Protocol      string `yaml:"protocol,omitempty"`
+	Name          string `yaml:"name,omitempty"`
+	HostIP        string `yaml:"hostIP,omitempty"`
 }
 
 type Meta struct {

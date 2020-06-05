@@ -3,11 +3,11 @@ package scheme
 import "time"
 
 type PodV1 struct {
-	ApiVersion string      `yaml:"apiVerion"`
+	ApiVersion string      `yaml:"apiVersion"`
 	Kind       string      `yaml:"Kind"`
 	Metadata   MetaV1      `yaml:"metadata"`
 	Spec       PodSpecV1   `yaml:"spec"`
-	Status     PodStatusV1 `yaml:"status"`
+	Status     PodStatusV1 `yaml:"status,omitempty"`
 }
 
 func (p *PodV1) Validate() error {
@@ -53,9 +53,9 @@ type ContainerV1 struct {
 type ContainerPortV1 struct {
 	ContainerPort int    `yaml:"containerPort"`
 	HostPort      int    `yaml:"hostPort"`
-	Protocol      string `yaml:"protocol"`
-	Name          string `yaml:"name"`
-	HostIP        string `yaml:"hostIP"`
+	Protocol      string `yaml:"protocol,omitempty"`
+	Name          string `yaml:"name,omitempty"`
+	HostIP        string `yaml:"hostIP,omitempty"`
 }
 
 type MetaV1 struct {
