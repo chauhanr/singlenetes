@@ -52,3 +52,9 @@ func (s *Server) podCreateHandler() http.HandlerFunc {
 		}
 	}
 }
+
+func (s *Server) registerEventSubscribers() http.HandleFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+	}
+}
