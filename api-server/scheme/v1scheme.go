@@ -64,3 +64,30 @@ type MetaV1 struct {
 	CreationTime time.Time `yaml:"creationTime"`
 	Uid          string    `yaml:"uid"`
 }
+
+/* Register Components Model*/
+
+type ComponentType string
+
+const (
+	Schedular  ComponentType = "Schedular"
+	Kubelet    ComponentType = "Kubelet"
+	Controller ComponentType = "Controller"
+)
+
+func (c ComponentType) IsValid() bool {
+	switch c {
+	case Schedular, Kubelet, Controller:
+		return true
+	default:
+		return false
+	}
+	return false
+}
+
+type EventSubscriber struct {
+	Id          string        `yaml:"id"`
+	Name        string        `yaml:"name"`
+	CallbackURL string        `yaml:"callbackURL"`
+	Type        ComponentType `yaml:"type"`
+}

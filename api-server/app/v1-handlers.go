@@ -34,16 +34,18 @@ func (s *Server) podCreateHandler() http.HandlerFunc {
 				msg := fmt.Sprintf("Error parsing PodV1 configuration %s\n", err)
 				data.ParsingError(msg)
 				respond(w, r, http.StatusInternalServerError, &data)
+				return
 			}
 			// add the pod definition to etcd cluster.
 			podUid := guid()
 			pod.Metadata.Uid = podUid
-			err = s.cli.Put(pod)
+			err = s.cli.AddPod(pod)
 			pod.Metadata.Namespace = vars[NAMESPACE_PNAME]
 			if err != nil {
 				msg := fmt.Sprintf("Error saving PodV1 configuration %s\n", err)
 				data.InternalServerError(http.StatusInternalServerError, msg)
 				respond(w, r, http.StatusInternalServerError, &data)
+				return
 			}
 			respond(w, r, http.StatusOK, nil)
 		} else {
@@ -53,8 +55,32 @@ func (s *Server) podCreateHandler() http.HandlerFunc {
 	}
 }
 
-func (s *Server) registerEventSubscribers() http.HandleFunc {
+func (s *Server) registerEventSubscribers() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		log.Printf("URL: %s, Event Subscription Request\n", path)
+		data := scheme.ErrorMessage{}
+		if r.Method == http.MethodPost {
+			subs := scheme.EventSubscriber{}
+			err := DecodeYaml(r, &subs)
+			if err != nil {
+				msg := fmt.Sprintf("Error parsing Eventsubscriber %s\n", err)
+				data.ParsingError(msg)
+				respond(w, r, http.StatusInternalServerError, &data)
+				return
+			}
+			err = s.cli.AddSubscriber(subs)
+			if err != nil {
+				msg := fmt.Sprintf("Error saving EventSubscriber config for %v error: %s\n", subs, err)
+				data.InternalServerError(http.StatusInternalServerError, msg)
+				respond(w, r, http.StatusInternalServerError, &data)
+				return
+			}
+			respond(w, r, http.StatusOK, nil)
+		} else {
+			data.MethodNotSupport(http.StatusMethodNotAllowed, r.Method)
+			respond(w, r, http.StatusMethodNotAllowed, &data)
+		}
 
 	}
 }
