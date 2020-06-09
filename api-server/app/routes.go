@@ -8,6 +8,7 @@ import (
 
 const (
 	NAMESPACE_PNAME = "namespace"
+	COMPONENT_TYPE  = "componentType"
 )
 
 func (s *Server) ApiRoutes() {
@@ -21,6 +22,8 @@ func (s *Server) apiV1Routes(subRouter *mux.Router) {
 	var api = subRouter.PathPrefix("/v1").Subrouter()
 	api.NotFoundHandler = http.HandlerFunc(s.NotFoundHandler())
 	api.HandleFunc("/{"+NAMESPACE_PNAME+"}/pod", s.podCreateHandler())
+	api.HandleFunc("/subscribe/event", s.registerEventSubscribers())
+	api.HandleFunc("/pod/subscribers/{"+COMPONENT_TYPE+"}", s.PodSubscribers())
 	api.HandleFunc("/status", s.StatusV1())
 }
 

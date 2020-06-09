@@ -84,3 +84,34 @@ func (s *Server) registerEventSubscribers() http.HandlerFunc {
 
 	}
 }
+
+func (s *Server) PodSubscribers() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		log.Printf("URL: %s, Get Subscribers List\n", path)
+		vars := mux.Vars(r)
+		data := scheme.ErrorMessage{}
+		if r.Method == http.MethodGet {
+			cmpType := vars[COMPONENT_TYPE]
+			c, err := scheme.GetComponentType(cmpType)
+			if err != nil {
+				msg := fmt.Sprintf("Undefined Subscriber Type: %s\n", err)
+				data.InternalServerError(http.StatusInternalServerError, msg)
+				respond(w, r, http.StatusInternalServerError, &data)
+				return
+			}
+			subscribers, err := s.cli.GetPodSubscribers(c)
+			if err != nil {
+				msg := fmt.Sprintf("Error retriving Pod Subscribers %s\n", err)
+				data.InternalServerError(http.StatusInternalServerError, msg)
+				respond(w, r, http.StatusInternalServerError, &data)
+				return
+			}
+			respond(w, r, http.StatusOK, &subscribers)
+			return
+		} else {
+			data.MethodNotSupport(http.StatusMethodNotAllowed, r.Method)
+			respond(w, r, http.StatusMethodNotAllowed, &data)
+		}
+	}
+}

@@ -1,6 +1,9 @@
 package scheme
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type PodV1 struct {
 	ApiVersion string      `yaml:"apiVersion"`
@@ -70,9 +73,10 @@ type MetaV1 struct {
 type ComponentType string
 
 const (
-	Schedular  ComponentType = "Schedular"
+	Schedular  ComponentType = "Scheduler"
 	Kubelet    ComponentType = "Kubelet"
 	Controller ComponentType = "Controller"
+	Undefined  ComponentType = "Undefined"
 )
 
 func (c ComponentType) IsValid() bool {
@@ -85,8 +89,24 @@ func (c ComponentType) IsValid() bool {
 	return false
 }
 
+func GetComponentType(cmp string) (ComponentType, error) {
+	switch cmp {
+	case Schedular.String():
+		return Schedular, nil
+	case Kubelet.String():
+		return Kubelet, nil
+	case Controller.String():
+		return Controller, nil
+	default:
+		return Undefined, errors.New("Component Not Defined")
+	}
+}
+
+func (c ComponentType) String() string {
+	return string(c)
+}
+
 type EventSubscriber struct {
-	Id          string        `yaml:"id"`
 	Name        string        `yaml:"name"`
 	CallbackURL string        `yaml:"callbackURL"`
 	Type        ComponentType `yaml:"type"`

@@ -12,6 +12,10 @@ import (
 	"go.etcd.io/etcd/clientv3"
 )
 
+const (
+	SUBSCRIBER_POD_KEY_PREFIX = "/consumer/pod"
+)
+
 type EtcdCtl struct {
 	Client *clientv3.Client
 }
@@ -39,6 +43,13 @@ func (e *EtcdCtl) AddPod(pod scheme.PodV1) error {
 	return nil
 }
 
+/*
+   This add subscriber method will to check for key duplication of the subscriber
+   if a duplicate key is provided by the name of the component the key will be overriden
+   So it is the responsibility of the sender to ensure that the key are not duplicate and
+   if they are then operation / update is intended.
+*/
+
 func (e *EtcdCtl) AddSubscriber(subs scheme.EventSubscriber) error {
 	componentType := subs.Type
 	name := subs.Name
@@ -46,16 +57,40 @@ func (e *EtcdCtl) AddSubscriber(subs scheme.EventSubscriber) error {
 	if name == "" || !componentType.IsValid() {
 		return errors.New("Invalid Subsriber Information name missing or component invalid")
 	}
-	/**
-	  1. encode the subscrioner
-	  2. save the subs
-	  3. return
-	*/
+
+	key := generateSubscriberKey(componentType, name)
+	subsEncoded, err := encodeS8Object(subs)
+	if err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	_, err = e.Client.Put(ctx, key, subsEncoded)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func generateSubscriberKey(componentType, name string) string {
-	key := fmt.Sprintf("/consumer/pod/%s/%s", componentType, name)
+func (e *EtcdCtl) GetPodSubscribers(componentType scheme.ComponentType) ([]scheme.EventSubscriber, error) {
+	key := fmt.Sprintf("%s/%s", SUBSCRIBER_POD_KEY_PREFIX, componentType)
+	ctx := context.Background()
+	gRes, err := e.Client.Get(ctx, key, clientv3.WithPrefix())
+	subs := []scheme.EventSubscriber{}
+	for _, kv := range gRes.Kvs {
+		sub := scheme.EventSubscriber{}
+		err = decodeS8Object(kv.Value, &sub)
+		if err != nil {
+			return subs, err
+		}
+		subs = append(subs, sub)
+	}
+	return subs, nil
+}
+
+func generateSubscriberKey(componentType scheme.ComponentType, name string) string {
+	key := fmt.Sprintf("%s/%s/%s", SUBSCRIBER_POD_KEY_PREFIX, componentType, name)
 	return key
 }
 
@@ -73,4 +108,12 @@ func encodeS8Object(v interface{}) (string, error) {
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+func decodeS8Object(value []byte, o interface{}) error {
+	err := yaml.Unmarshal(value, o)
+	if err != nil {
+		return err
+	}
+	return nil
 }

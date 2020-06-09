@@ -1,0 +1,3 @@
+name: schedular-0
+callbackURL: http://localhost:8442/notify/pod/create
+type: Schedular 
