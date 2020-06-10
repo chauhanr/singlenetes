@@ -46,10 +46,17 @@ func main() {
 	s := app.NewServer(r, &client)
 	s.ApiRoutes()
 
+	// configure and start watcher
+	w := app.NewWatcher(&client)
+	go w.Start()
+	defer w.Close()
+
 	port := cfg.ApiServerConfig.Port
 	log.Printf("Starting api-server on port %d\n", port)
 	portAddr := fmt.Sprintf(":%d", port)
+
 	http.ListenAndServe(portAddr, s.Router)
+
 }
 
 func etcdCli(cfg app.EtcdConfig) (*clientv3.Client, error) {
