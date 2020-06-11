@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/chauhanr/singlenetes/api-server/scheme"
 	store "github.com/chauhanr/singlenetes/api-server/store"
 	"go.etcd.io/etcd/clientv3"
 )
@@ -26,20 +27,24 @@ func NewWatcher(ctl *store.EtcdCtl) *Watcher {
 }
 
 func (w *Watcher) Start() {
-	eStream := func() <-chan interface{} {
-		eventStream := make(chan interface{})
+	podStream := func() <-chan scheme.PodEvent {
+		eventStream := make(chan scheme.PodEvent)
 		go func() {
 			defer close(eventStream)
 			select {
 			case <-w.done:
 				return
 			default:
-				for {
-					rch := w.cli.Client.Watch(context.Background(), "/api/v1/Pod", clientv3.WithPrefix())
-					for ws := range rch {
-						for _, ev := range ws.Events {
-							eventStream <- ev
-						}
+				rch := w.cli.Client.Watch(context.Background(), store.POD_KEY_PREFIX, clientv3.WithPrefix())
+				for ws := range rch {
+					for _, ev := range ws.Events {
+						key := ev.Kv.Key
+						//	value := ev.Kv.Value
+						event := scheme.PodEvent{}
+						event.PodDefKey = string(key)
+						event.EventType = ev.Type.String()
+
+						eventStream <- event
 					}
 				}
 			}
@@ -47,7 +52,7 @@ func (w *Watcher) Start() {
 		return eventStream
 	}
 
-	streamConsumer := func(stream <-chan interface{}) {
+	podStreamConsumer := func(stream <-chan scheme.PodEvent) {
 		go func() {
 			for {
 				select {
@@ -60,8 +65,8 @@ func (w *Watcher) Start() {
 			}
 		}()
 	}
-	s := eStream()
-	streamConsumer(s)
+	s := podStream()
+	podStreamConsumer(s)
 }
 
 func (w *Watcher) Close() {

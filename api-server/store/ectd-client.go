@@ -14,6 +14,7 @@ import (
 
 const (
 	SUBSCRIBER_POD_KEY_PREFIX = "/consumer/pod"
+	POD_KEY_PREFIX            = "/api/v1/Pod"
 )
 
 type EtcdCtl struct {

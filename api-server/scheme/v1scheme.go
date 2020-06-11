@@ -111,3 +111,9 @@ type EventSubscriber struct {
 	CallbackURL string        `yaml:"callbackURL"`
 	Type        ComponentType `yaml:"type"`
 }
+
+type PodEvent struct {
+	PodDefKey string `yaml:"PodDefinitionKey"`
+	EventType string `yaml:"PodEventType"`
+	PodDef    PodV1  `yaml:"PodDef"`
+}
