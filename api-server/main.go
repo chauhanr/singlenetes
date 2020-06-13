@@ -47,7 +47,8 @@ func main() {
 	s.ApiRoutes()
 
 	// configure and start watcher
-	w := app.NewWatcher(&client)
+	hClient := http.DefaultClient
+	w := app.NewWatcher(&client, hClient)
 	go w.Start()
 	defer w.Close()
 

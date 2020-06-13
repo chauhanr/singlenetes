@@ -3,9 +3,12 @@ package app
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/chauhanr/singlenetes/api-server/scheme"
 	store "github.com/chauhanr/singlenetes/api-server/store"
+	"github.com/chauhanr/singlenetes/api-server/util"
 	"go.etcd.io/etcd/clientv3"
 )
 
@@ -18,11 +21,12 @@ import (
 type Watcher struct {
 	cli  *store.EtcdCtl
 	done chan interface{}
+	h    *HttpClient
 }
 
-func NewWatcher(ctl *store.EtcdCtl) *Watcher {
+func NewWatcher(ctl *store.EtcdCtl, hClient *http.Client) *Watcher {
 	d := make(chan interface{})
-	w := Watcher{cli: ctl, done: d}
+	w := Watcher{cli: ctl, done: d, h: &HttpClient{Client: hClient}}
 	return &w
 }
 
@@ -39,11 +43,22 @@ func (w *Watcher) Start() {
 				for ws := range rch {
 					for _, ev := range ws.Events {
 						key := ev.Kv.Key
-						//	value := ev.Kv.Value
+						value := ev.Kv.Value
 						event := scheme.PodEvent{}
 						event.PodDefKey = string(key)
 						event.EventType = ev.Type.String()
-
+						pod := &scheme.PodV1{}
+						if value == nil {
+							event.PodDef = nil
+						} else {
+							err := util.DecodeS8Object(value, pod)
+							if err != nil {
+								log.Printf("Error Unmarshalling Pod v1 err: %s\n", err)
+								event.PodDef = nil
+							} else {
+								event.PodDef = pod
+							}
+						}
 						eventStream <- event
 					}
 				}
@@ -59,8 +74,12 @@ func (w *Watcher) Start() {
 				case <-w.done:
 					return
 				case r := <-stream:
-					fmt.Printf("Event published %v\n", r)
-
+					e, err := util.EncodeS8Object(r)
+					if err != nil {
+						log.Printf("Error encoding the event %s\n", err)
+					} else {
+						fmt.Printf("Event published:\n %v\n", e)
+					}
 				}
 			}
 		}()

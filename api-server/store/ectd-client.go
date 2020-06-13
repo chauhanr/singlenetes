@@ -1,14 +1,12 @@
 package store
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 
-	"gopkg.in/yaml.v2"
-
 	"github.com/chauhanr/singlenetes/api-server/scheme"
+	"github.com/chauhanr/singlenetes/api-server/util"
 	"go.etcd.io/etcd/clientv3"
 )
 
@@ -30,7 +28,7 @@ func (e *EtcdCtl) AddPod(pod scheme.PodV1) error {
 	}
 
 	key := generatePodKey(kind, v, pod.Metadata.Namespace, u)
-	podEncoded, err := encodeS8Object(pod)
+	podEncoded, err := util.EncodeS8Object(pod)
 	if err != nil {
 		return err
 	}
@@ -60,7 +58,7 @@ func (e *EtcdCtl) AddSubscriber(subs scheme.EventSubscriber) error {
 	}
 
 	key := generateSubscriberKey(componentType, name)
-	subsEncoded, err := encodeS8Object(subs)
+	subsEncoded, err := util.EncodeS8Object(subs)
 	if err != nil {
 		return err
 	}
@@ -81,7 +79,7 @@ func (e *EtcdCtl) GetPodSubscribers(componentType scheme.ComponentType) ([]schem
 	subs := []scheme.EventSubscriber{}
 	for _, kv := range gRes.Kvs {
 		sub := scheme.EventSubscriber{}
-		err = decodeS8Object(kv.Value, &sub)
+		err = util.DecodeS8Object(kv.Value, &sub)
 		if err != nil {
 			return subs, err
 		}
@@ -98,23 +96,4 @@ func generateSubscriberKey(componentType scheme.ComponentType, name string) stri
 func generatePodKey(kind, version, namespace, uid string) string {
 	key := fmt.Sprintf("/api/%s/%s/%s/%s", version, kind, namespace, uid)
 	return key
-}
-
-func encodeS8Object(v interface{}) (string, error) {
-	var buf bytes.Buffer
-
-	enc := yaml.NewEncoder(&buf)
-	err := enc.Encode(v)
-	if err != nil {
-		return "", err
-	}
-	return buf.String(), nil
-}
-
-func decodeS8Object(value []byte, o interface{}) error {
-	err := yaml.Unmarshal(value, o)
-	if err != nil {
-		return err
-	}
-	return nil
 }
