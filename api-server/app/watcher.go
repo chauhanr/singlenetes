@@ -18,19 +18,25 @@ import (
   This will be done using the callback url that the cusotmers have registered with the api-server
 */
 
-type Watcher struct {
-	cli  *store.EtcdCtl
+type Watcher interface {
+	Start()
+	Close()
+}
+
+type WatcherImpl struct {
+	cli  *clientv3.Client
 	done chan interface{}
 	h    *HttpClient
 }
 
-func NewWatcher(ctl *store.EtcdCtl, hClient *http.Client) *Watcher {
+func NewWatcher(ctl *clientv3.Client, hClient *http.Client) Watcher {
 	d := make(chan interface{})
-	w := Watcher{cli: ctl, done: d, h: &HttpClient{Client: hClient}}
-	return &w
+	var w Watcher
+	w = WatcherImpl{cli: ctl, done: d, h: &HttpClient{Client: hClient}}
+	return w
 }
 
-func (w *Watcher) Start() {
+func (w WatcherImpl) Start() {
 	podStream := func() <-chan scheme.PodEvent {
 		eventStream := make(chan scheme.PodEvent)
 		go func() {
@@ -39,7 +45,7 @@ func (w *Watcher) Start() {
 			case <-w.done:
 				return
 			default:
-				rch := w.cli.Client.Watch(context.Background(), store.POD_KEY_PREFIX, clientv3.WithPrefix())
+				rch := w.cli.Watch(context.Background(), store.POD_KEY_PREFIX, clientv3.WithPrefix())
 				for ws := range rch {
 					for _, ev := range ws.Events {
 						key := ev.Kv.Key
@@ -88,6 +94,6 @@ func (w *Watcher) Start() {
 	podStreamConsumer(s)
 }
 
-func (w *Watcher) Close() {
+func (w WatcherImpl) Close() {
 	close(w.done)
 }

@@ -40,7 +40,7 @@ func main() {
 		fmt.Printf("Error connecting to ectd instance: %s\n", err)
 		return
 	}
-	client := store.EtcdCtl{cli}
+	client := store.EtcdCtlImpl{cli}
 	defer cli.Close()
 
 	s := app.NewServer(r, &client)
@@ -48,7 +48,7 @@ func main() {
 
 	// configure and start watcher
 	hClient := http.DefaultClient
-	w := app.NewWatcher(&client, hClient)
+	w := app.NewWatcher(cli, hClient)
 	go w.Start()
 	defer w.Close()
 

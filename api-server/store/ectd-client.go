@@ -15,11 +15,17 @@ const (
 	POD_KEY_PREFIX            = "/api/v1/Pod"
 )
 
-type EtcdCtl struct {
+type EtcdCtl interface {
+	AddPod(scheme.PodV1) error
+	AddSubscriber(scheme.EventSubscriber) error
+	GetPodSubscribers(scheme.ComponentType) ([]scheme.EventSubscriber, error)
+}
+
+type EtcdCtlImpl struct {
 	Client *clientv3.Client
 }
 
-func (e *EtcdCtl) AddPod(pod scheme.PodV1) error {
+func (e *EtcdCtlImpl) AddPod(pod scheme.PodV1) error {
 	v := pod.ApiVersion
 	u := pod.Metadata.Uid
 	kind := pod.Kind
@@ -49,7 +55,7 @@ func (e *EtcdCtl) AddPod(pod scheme.PodV1) error {
    if they are then operation / update is intended.
 */
 
-func (e *EtcdCtl) AddSubscriber(subs scheme.EventSubscriber) error {
+func (e *EtcdCtlImpl) AddSubscriber(subs scheme.EventSubscriber) error {
 	componentType := subs.Type
 	name := subs.Name
 
@@ -72,7 +78,7 @@ func (e *EtcdCtl) AddSubscriber(subs scheme.EventSubscriber) error {
 	return nil
 }
 
-func (e *EtcdCtl) GetPodSubscribers(componentType scheme.ComponentType) ([]scheme.EventSubscriber, error) {
+func (e *EtcdCtlImpl) GetPodSubscribers(componentType scheme.ComponentType) ([]scheme.EventSubscriber, error) {
 	key := fmt.Sprintf("%s/%s", SUBSCRIBER_POD_KEY_PREFIX, componentType)
 	ctx := context.Background()
 	gRes, err := e.Client.Get(ctx, key, clientv3.WithPrefix())

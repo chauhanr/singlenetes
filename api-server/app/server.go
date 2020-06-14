@@ -7,10 +7,10 @@ import (
 
 type Server struct {
 	Router *mux.Router
-	cli    *store.EtcdCtl
+	cli    store.EtcdCtl
 }
 
-func NewServer(router *mux.Router, ctl *store.EtcdCtl) *Server {
+func NewServer(router *mux.Router, ctl store.EtcdCtl) *Server {
 	s := Server{Router: router, cli: ctl}
 	return &s
 }
