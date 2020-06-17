@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -43,20 +42,8 @@ func main() {
 	client := store.EtcdCtlImpl{cli}
 	defer cli.Close()
 
-	s := app.NewServer(r, &client)
-	s.ApiRoutes()
-
-	// configure and start watcher
 	hClient := http.DefaultClient
-	w := app.NewWatcher(cli, hClient)
-	go w.Start()
-	defer w.Close()
-
-	port := cfg.ApiServerConfig.Port
-	log.Printf("Starting api-server on port %d\n", port)
-	portAddr := fmt.Sprintf(":%d", port)
-
-	http.ListenAndServe(portAddr, s.Router)
+	app.Startup(cfg.ApiServerConfig.Port, r, client, hClient)
 
 }
 
