@@ -37,8 +37,10 @@ func (s *Server) podCreateHandler() http.HandlerFunc {
 				return
 			}
 			// add the pod definition to etcd cluster.
-			podUid := guid()
-			pod.Metadata.Uid = podUid
+			if pod.Metadata.Uid == "" {
+				podUid := guid()
+				pod.Metadata.Uid = podUid
+			}
 			err = s.cli.AddPod(pod)
 			pod.Metadata.Namespace = vars[NAMESPACE_PNAME]
 			if err != nil {
