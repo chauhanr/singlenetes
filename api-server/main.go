@@ -29,7 +29,7 @@ func main() {
 	cfg := app.ServerConfig{}
 	err := cfg.LoadAndValidateApiConfig(config)
 	if err != nil {
-		fmt.Errorf("Error loading/validating server config: %s\n", err)
+		fmt.Printf("Error loading/validating server config: %s\n", err)
 		return
 	}
 	etcdConfig := cfg.ApiServerConfig.EtcdConfig

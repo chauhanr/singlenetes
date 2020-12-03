@@ -33,7 +33,7 @@ func TestAddPodSuccessHandler(t *testing.T) {
 
 	tres, err := http.NewRequest("POST", tserver.URL+"/api/v1/default/pod", strings.NewReader(p))
 	assert.NoError(t, err)
-	_, err := http.DefaultClient.Do(tres)
+	_, err = http.DefaultClient.Do(tres)
 	assert.NoError(t, err)
 	/*	actualBody, err := ioutil.ReadAll(res.Body)
 		assert.NoError(t, err)
