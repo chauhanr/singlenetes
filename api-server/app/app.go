@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//Startup methid is used to start the api server
 func Startup(port int, r *mux.Router, etcdCtl store.EtcdCtl, hClient *http.Client) {
 	s := NewServer(r, etcdCtl)
 	s.ApiRoutes()

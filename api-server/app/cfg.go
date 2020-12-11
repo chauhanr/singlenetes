@@ -3,8 +3,9 @@ package app
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"os"
+
+	"gopkg.in/yaml.v2"
 )
 
 type ServerConfig struct {
@@ -48,17 +49,17 @@ func (s *ServerConfig) load(config string) error {
 	return nil
 }
 
+//LoadAndValidateApiConfig method will validate the api configurations.
 func (s *ServerConfig) LoadAndValidateApiConfig(path string) error {
 	err := s.load(path)
 	if err != nil {
-		fmt.Errorf("Error loading configurations for api server: %s.\n", err)
-		return err
+		return fmt.Errorf("error loading configurations for api server: %s", err)
 	}
 
 	errs := s.validate()
 	if errs != nil {
 		for i, e := range errs {
-			fmt.Errorf("%d. error - %s\n", i, e)
+			_ = fmt.Errorf("%d. Error - %s", i, e)
 		}
 		return errors.New("multiple validation errors in config")
 	}
