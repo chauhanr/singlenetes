@@ -9,7 +9,7 @@ import (
 	"github.com/chauhanr/singlenetes/api-server/scheme"
 	store "github.com/chauhanr/singlenetes/api-server/store"
 	"github.com/chauhanr/singlenetes/api-server/util"
-	"go.etcd.io/etcd/clientv3"
+	"github.com/coreos/etcd/clientv3"
 )
 
 /*

@@ -7,7 +7,7 @@ import (
 
 	"github.com/chauhanr/singlenetes/api-server/scheme"
 	"github.com/chauhanr/singlenetes/api-server/util"
-	"go.etcd.io/etcd/clientv3"
+	"github.com/coreos/etcd/clientv3"
 )
 
 const (

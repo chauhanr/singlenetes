@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"sync"
 	"time"
+
+	"github.com/chauhanr/singlenetes/client-go/tools/cache"
 )
 
 /*
@@ -16,5 +18,6 @@ type sharedInformerFactory struct {
 	defaultResync time.Duration
 	customResync  map[reflect.Type]time.Duration
 
-	informers map[reflect.Type]String
+	informers        map[reflect.Type]cache.SharedIndexInformer
+	startedInformers map[reflect.Type]bool
 }

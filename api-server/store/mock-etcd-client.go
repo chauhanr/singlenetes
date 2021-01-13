@@ -2,8 +2,8 @@ package store
 
 import (
 	"github.com/chauhanr/singlenetes/api-server/scheme"
+	"github.com/coreos/etcd/clientv3"
 	"github.com/stretchr/testify/mock"
-	"go.etcd.io/etcd/clientv3"
 )
 
 type MockEtcdCtl struct {

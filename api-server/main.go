@@ -8,8 +8,8 @@ import (
 
 	"github.com/chauhanr/singlenetes/api-server/app"
 	"github.com/chauhanr/singlenetes/api-server/store"
+	"github.com/coreos/etcd/clientv3"
 	"github.com/gorilla/mux"
-	"go.etcd.io/etcd/clientv3"
 )
 
 var config string
