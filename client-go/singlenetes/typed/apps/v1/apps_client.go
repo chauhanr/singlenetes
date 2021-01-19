@@ -1,8 +1,10 @@
 package v1
 
-import "github.com/chauhanr/singlenetes/client-go/rest"
+import (
+	"github.com/chauhanr/singlenetes/client-go/rest"
+)
 
-//AppsV1Interface is the interface that returns api
+//AppsV1Interface will give apps objects or api
 type AppsV1Interface interface {
 	RESTClient() rest.Interface
 }

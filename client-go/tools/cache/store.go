@@ -1,4 +1,11 @@
 package cache
 
-//Store is the cache (in memory) sturcture we will keep to get the events from etcd
-type Store interface{}
+type Store interface {
+	AddObject(object interface{}) error
+	Update(object interface{}) error
+	Delete(object interface{}) error
+	List() []interface{}
+	ListKeys() []string
+	Get(object interface{}) (item interface{}, exists bool, err error)
+	GetByKey(key string) (item interface{}, exists bool, err error)
+}

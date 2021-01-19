@@ -5,6 +5,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/chauhanr/singlenetes/apimachinery/runtime"
+	"github.com/chauhanr/singlenetes/apimachinery/runtime/schema"
+	"github.com/chauhanr/singlenetes/client-go/informers/core"
+	"github.com/chauhanr/singlenetes/client-go/informers/internalinterfaces"
+	"github.com/chauhanr/singlenetes/client-go/singlenetes"
 	"github.com/chauhanr/singlenetes/client-go/tools/cache"
 )
 
@@ -13,6 +18,7 @@ import (
    this will implment all the api methods that return singlenetes objects.
 */
 type sharedInformerFactory struct {
+	client        singlenetes.Interface
 	namespace     string
 	lock          sync.Mutex
 	defaultResync time.Duration
@@ -20,4 +26,36 @@ type sharedInformerFactory struct {
 
 	informers        map[reflect.Type]cache.SharedIndexInformer
 	startedInformers map[reflect.Type]bool
+}
+
+/*SharedInformerFactory Interface*/
+type SharedInformerFactory interface {
+	internalinterfaces.SharedInformerFactory
+	ForResource(resource schema.GroupVersionKind) (GenericInformer, error)
+	WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool
+	//Apps() apps.Interface
+	Core() core.Interface
+}
+
+func (f *sharedInformerFactory) Start(stopCh <-chan struct{}) {
+
+}
+
+func (f *sharedInformerFactory) WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool {
+	res := map[reflect.Type]bool{}
+	return res
+}
+
+func (f *sharedInformerFactory) ForResource(resouce schema.GroupVersionResource) (GenericInformer, error) {
+	return nil, nil
+}
+
+func (f *sharedInformerFactory) InformerFor(obj runtime.Object, newInfromerFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer {
+
+	return nil
+}
+
+func (f *sharedInformerFactory) Core() core.Interface {
+
+	return nil
 }
