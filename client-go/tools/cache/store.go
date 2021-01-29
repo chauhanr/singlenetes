@@ -46,7 +46,6 @@ func (c *cache) Get(object interface{}) (item interface{}, exists bool, err erro
 }
 
 func (c *cache) GetByKey(key string) (item interface{}, exists bool, err error) {
-
 	return
 }
 
