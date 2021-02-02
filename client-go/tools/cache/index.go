@@ -21,3 +21,9 @@ type Indexer interface {
 	// IndexKeys(indexName, indexedValue string) ([]string, error)
 	// ByIndex(indexName, indexedValue string) ([]interface{}, eror)
 }
+
+//NewIndexer to build indexer
+func NewIndexer(indexers Indexers) Indexer {
+
+	return nil
+}

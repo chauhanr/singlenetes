@@ -18,5 +18,5 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string) Interface
 }
 
 func (v *version) Pods() PodInformer {
-	return nil
+	return &podInformer{factory: v.factory, namespace: v.namespace}
 }

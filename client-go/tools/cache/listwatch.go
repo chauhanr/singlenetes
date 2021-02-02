@@ -28,11 +28,22 @@ type ListWatcher interface {
 type ListFunc func() (runtime.Object, error)
 
 // WatchFunc knows how to watch resources
-type WatchFunc func() (runtime.Object, error)
+type WatchFunc func() (watch.Interface, error)
 
+//ListWatch structu is one for listing and watching an object
 type ListWatch struct {
 	ListFunc  ListFunc
 	WatchFunc WatchFunc
+}
+
+//List function for the listwatch struct
+func (lw *ListWatch) List() (runtime.Object, error) {
+	return lw.ListFunc()
+}
+
+//Watch function for list watch struct
+func (lw *ListWatch) Watch() (watch.Interface, error) {
+	return lw.WatchFunc()
 }
 
 //Getter interface returns rest client reuqest object
@@ -45,7 +56,7 @@ func NewListWatchFromClient(c Getter, resource string, namespace string) *ListWa
 	listFunc := func() (runtime.Object, error) {
 		return c.Get().Namespace(namespace).Resource(resource).Do(context.TODO()).Get()
 	}
-	watchFunc := func() (runtime.Object, error) {
+	watchFunc := func() (watch.Interface, error) {
 		return c.Get().Namespace(namespace).Resource(resource).Watch(context.TODO())
 	}
 

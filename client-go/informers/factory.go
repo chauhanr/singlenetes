@@ -37,6 +37,19 @@ type SharedInformerFactory interface {
 	Core() core.Interface
 }
 
+//NewSharedInformerFactory will return factory of shared infromers.
+func NewSharedInformerFactory(client singlenetes.Interface, defaultResync time.Duration) SharedInformerFactory {
+	factory := &sharedInformerFactory{
+		client:           client,
+		namespace:        "",
+		defaultResync:    defaultResync,
+		informers:        make(map[reflect.Type]cache.SharedIndexInformer),
+		startedInformers: make(map[reflect.Type]bool),
+		customResync:     make(map[reflect.Type]time.Duration),
+	}
+	return factory
+}
+
 func (f *sharedInformerFactory) Start(stopCh <-chan struct{}) {
 
 }
@@ -46,12 +59,11 @@ func (f *sharedInformerFactory) WaitForCacheSync(stopCh <-chan struct{}) map[ref
 	return res
 }
 
-func (f *sharedInformerFactory) ForResource(resouce schema.GroupVersionResource) (GenericInformer, error) {
+func (f *sharedInformerFactory) ForResource(resouce schema.GroupVersionKind) (GenericInformer, error) {
 	return nil, nil
 }
 
 func (f *sharedInformerFactory) InformerFor(obj runtime.Object, newInfromerFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer {
-
 	return nil
 }
 
